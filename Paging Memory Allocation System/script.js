@@ -6,12 +6,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const jobNameInput = document.getElementById("job-name");
   const jobSizeInput = document.getElementById("job-size");
   const pageSizeInput = document.getElementById("page-size");
+  const totalMemoryInput = document.getElementById("total-memory");
   const messageDisplay = document.getElementById("message");
   const freeFramesInfo = document.getElementById("free-frames-info");
   const currentJobDetails = document.getElementById("current-job-details");
   const jobPmtContainer = document.getElementById("job-pmt-container");
   const outputPanel = document.getElementById("output-panel");
   const statusMessageContainer = document.getElementById("status-message-container");
+  const memorySpecsText = document.getElementById("memory-specs-text");
 
   // Error popup elements
   const errorPopup = document.getElementById("error-popup");
@@ -22,9 +24,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const progressBar = document.getElementById("allocation-progress-bar");
 
   // Memory simulation parameters
-  const maxMemorySize = 60; // Total memory (in MB)
+  let maxMemorySize = 60; // Total memory (in MB)
   const osSize = 10; // OS Kernel size (in MB)
-  let frameSize = 5; // Size of each memory frame (in MB)
+  const frameSize = 5; // Size of each memory frame (in MB)
   let memory = Array(maxMemorySize).fill(null); // Initialize memory array with null values
   let jobs = []; // Array to store job records
   let jobCounter = 0; // Counter for auto-incrementing job names
@@ -42,6 +44,12 @@ document.addEventListener("DOMContentLoaded", () => {
   currentJobDetails.style.display = "none";
   jobPmtContainer.style.display = "none";
 
+  // Update memory specs display
+  const updateMemorySpecsText = () => {
+    const availableMemory = maxMemorySize - osSize;
+    memorySpecsText.textContent = `Total Memory: ${maxMemorySize} MB (OS Kernel: ${osSize} MB, Available: ${availableMemory} MB)`;
+  };
+
   // Initialize memory view with OS Kernel and empty frames
   const initializeMemoryView = () => {
     // Clear existing memory display
@@ -56,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
     memoryMapContainer.appendChild(osSegment);
 
-    // Create the memory frames after OS kernel (10 frames, each 5MB)
+    // Create the memory frames after OS kernel
     for (let i = osSize; i < maxMemorySize; i += frameSize) {
       const segment = document.createElement("div");
       segment.classList.add("memory-segment", "frame-free");
@@ -440,6 +448,36 @@ document.addEventListener("DOMContentLoaded", () => {
     errorPopup.style.display = "block";
   };
 
+  // Handle total memory input change
+  const handleTotalMemoryChange = () => {
+    const newTotalMemory = parseInt(totalMemoryInput.value);
+    
+    if (isNaN(newTotalMemory)) {
+      showError("Please enter a valid number for total memory.");
+      return;
+    }
+    
+    if (newTotalMemory < 20) {
+      showError("Total memory must be at least 20 MB.");
+      return;
+    }
+    
+    if (newTotalMemory > 200) {
+      showError("Total memory cannot exceed 200 MB.");
+      return;
+    }
+    
+    // Update memory size
+    maxMemorySize = newTotalMemory;
+    memory = Array(maxMemorySize).fill(null);
+    
+    // Update memory specs display
+    updateMemorySpecsText();
+    
+    // Reset UI
+    resetMemory();
+  };
+
   // Event Listeners
   processJobBtn.addEventListener("click", processJob);
   resetBtn.addEventListener("click", resetMemory);
@@ -459,6 +497,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // Handle total memory input change
+  totalMemoryInput.addEventListener("change", handleTotalMemoryChange);
+
   // Initialize the memory view on load
+  updateMemorySpecsText();
   initializeMemoryView();
+
+  // Toggle between welcome screen and application
+  document.getElementById('continue-btn').addEventListener('click', function() {
+    document.getElementById('welcome-screen').style.display = 'none';
+    document.getElementById('app-container').style.display = 'block';
+  });
 });

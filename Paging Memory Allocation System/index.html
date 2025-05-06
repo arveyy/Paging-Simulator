@@ -1,209 +1,11 @@
 <!DOCTYPE html>
-<html lang="en" >
-<head>
-  <meta charset="UTF-8">
-  <title>Paged Memory Allocation</title>
-  <link rel="stylesheet" href="./style.css">
-
-</head>
-<body>
-<!-- partial:index.partial.html -->
-<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Paged Memory Allocation Simulator</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="static/styles.css">
-  <style>
-    /* Welcome screen specific styles */
-    .welcome-container {
-      max-width: 600px;
-      margin: 120px auto;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      background-color: var(--panel-bg);
-      border: 1px solid var(--panel-border);
-      box-shadow: 0 0 20px var(--cyber-glow), inset 0 0 10px rgba(0, 0, 0, 0.5);
-      border-radius: 10px;
-      position: relative;
-      overflow: hidden;
-      animation: fade-in 0.8s ease-out forwards;
-    }
-    
-    .welcome-container::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: repeating-linear-gradient(
-        170deg,
-        rgba(77, 166, 255, 0.05) 0px,
-        rgba(77, 166, 255, 0.05) 1px,
-        transparent 1px,
-        transparent 15px
-      );
-      pointer-events: none;
-      z-index: 1;
-    }
-    
-    .welcome-header {
-      background: linear-gradient(90deg, var(--autobot-deeper-blue), var(--autobot-dark-blue));
-      padding: 25px;
-      text-align: center;
-      width: 100%;
-      border-bottom: 2px solid var(--autobot-blue);
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .welcome-header::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--cyber-glow), transparent);
-      animation: scanline 3s linear infinite;
-    }
-    
-    .welcome-header h1 {
-      margin: 0;
-      color: white;
-      text-shadow: 0 0 10px var(--cyber-glow);
-      font-size: 2rem;
-      letter-spacing: 1px;
-      position: relative;
-    }
-    
-    .welcome-content {
-      padding: 40px;
-      text-align: center;
-      position: relative;
-      z-index: 2;
-    }
-    
-    .team-section {
-      margin: 0 auto;
-      padding: 30px;
-      background-color: rgba(15, 23, 42, 0.6);
-      border-radius: 10px;
-      border: 1px solid var(--panel-border);
-      width: 100%;
-      max-width: 400px;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-    }
-    
-    .team-title {
-      color: var(--autobot-blue);
-      margin-bottom: 25px;
-      text-align: center;
-      font-size: 1.5rem;
-      text-shadow: 0 0 5px var(--cyber-glow);
-      position: relative;
-      display: inline-block;
-      padding-bottom: 10px;
-    }
-    
-    .team-title::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 80px;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--autobot-blue), transparent);
-    }
-    
-    .team-member {
-      margin-bottom: 15px;
-      padding: 10px 5px;
-      border-bottom: 1px solid rgba(77, 166, 255, 0.2);
-      transition: all 0.3s ease;
-      text-align: left;
-    }
-    
-    .team-member:last-child {
-      border-bottom: none;
-      margin-bottom: 0;
-    }
-    
-    .team-member:hover {
-      background-color: rgba(77, 166, 255, 0.1);
-      border-radius: 4px;
-    }
-    
-    .member-name {
-      color: var(--autobot-blue);
-      font-weight: 600;
-      font-size: 1.1rem;
-      display: inline-block;
-      margin-right: 5px;
-    }
-    
-    .continue-btn {
-      background: linear-gradient(90deg, var(--autobot-deeper-blue), var(--autobot-dark-blue));
-      color: white;
-      font-family: 'Orbitron', sans-serif;
-      padding: 15px 40px;
-      border: none;
-      border-radius: 50px;
-      margin-top: 40px;
-      cursor: pointer;
-      position: relative;
-      overflow: hidden;
-      font-size: 1.1rem;
-      font-weight: 700;
-      letter-spacing: 1.5px;
-      box-shadow: 0 0 20px rgba(77, 166, 255, 0.5);
-      transition: all 0.3s ease;
-      text-transform: uppercase;
-    }
-    
-    .continue-btn:hover {
-      box-shadow: 0 0 30px var(--cyber-glow);
-      transform: translateY(-3px) scale(1.03);
-    }
-    
-    .continue-btn:active {
-      transform: translateY(1px);
-    }
-    
-    .continue-btn::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-      transform: translateX(-100%);
-      transition: transform 0.3s;
-    }
-    
-    .continue-btn:hover::after {
-      transform: translateX(100%);
-      transition: transform 0.6s;
-    }
-    
-    /* Hide app container by default */
-    .app-container {
-      display: none;
-    }
-    
-    /* Animation for welcome screen */
-    @keyframes fade-in {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -273,6 +75,10 @@
           <input type="number" id="page-size" min="5" max="5" value="5" readonly class="cyber-input locked">
           <small class="input-hint">Fixed at 5 MB as per requirement</small>
 
+          <label for="total-memory">Total Memory (MB):</label>
+          <input type="number" id="total-memory" min="20" max="200" value="60" class="cyber-input">
+          <small class="input-hint">Enter total RAM size (20-200 MB)</small>
+
           <div class="memory-info">
             <div class="info-header">
               <svg class="memory-icon" width="20" height="20" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
@@ -282,7 +88,7 @@
               </svg>
               <span>Memory Specs</span>
             </div>
-            <p>Total Memory: 60 MB (OS Kernel: 10 MB, Available: 50 MB)</p>
+            <p id="memory-specs-text">Total Memory: 60 MB (OS Kernel: 10 MB, Available: 50 MB)</p>
             <p>Max Jobs: Limited by available memory</p>
           </div>
 
@@ -345,7 +151,7 @@
             </div>
 
             <div class="job-details-panel">
-              <div id="current-job-details" 2style="display: none;"></div>
+              <div id="current-job-details" style="display: none;"></div>
               <div id="job-pmt-container" style="display: none;"></div>
             </div>
           </div>
@@ -354,18 +160,6 @@
     </div>
   </div>
 
-  <script>
-    // Toggle between welcome screen and application
-    document.getElementById('continue-btn').addEventListener('click', function() {
-      document.getElementById('welcome-screen').style.display = 'none';
-      document.getElementById('app-container').style.display = 'block';
-    });
-  </script>
-  <script src="static/script.js"></script>
-</body>
-</html>
-<!-- partial -->
-  <script  src="./script.js"></script>
-
+  <script src="script.js"></script>
 </body>
 </html>
